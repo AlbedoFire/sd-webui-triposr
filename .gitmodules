@@ -1,0 +1,3 @@
+[submodule "TripoSR"]
+	path = TripoSR
+	url = https://github.com/VAST-AI-Research/TripoSR.git
