@@ -80,7 +80,7 @@ def generate(image, mc_resolution, formats=["obj", "glb"]):
     scene_codes = model(image, device=device)
     mesh = model.extract_mesh(scene_codes, resolution=mc_resolution)[0]
     mesh = to_gradio_3d_orientation(mesh)
-    rv = []
+
     for format in formats:
         timestamp = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
 
@@ -155,4 +155,7 @@ class TripoSR(scripts.Script):
 
         # TODO: add image edit process via Processed object proc
         return proc
+
+
+
 
