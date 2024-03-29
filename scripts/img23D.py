@@ -107,7 +107,7 @@ class TripoSR(scripts.Script):
     # Thus, return is_img2img to only show the script on the img2img tab.
 
     def show(self, is_img2img):
-        return scripts.AlwaysVisible
+        return True
 
     # How the script's is displayed in the UI. See https://gradio.app/docs/#components
     # for the different UI components you can use and how to create them.
@@ -117,10 +117,10 @@ class TripoSR(scripts.Script):
     def ui(self, is_img2img):
         with gr.Group():
             do_remove_background = gr.Checkbox(
-                label="Remove Background", value=True
+                label="去除背景", value=True
             )
             foreground_ratio = gr.Slider(
-                label="Foreground Ratio",
+                label="去除背景的程度",
                 minimum=0.5,
                 maximum=1.0,
                 value=0.85,
@@ -147,12 +147,12 @@ class TripoSR(scripts.Script):
         # and the angle and two booleans indicating horizontal and
         # vertical flips from the UI, then returns the
         # image rotated and flipped accordingly
-        def rotate_and_flip(im, angle, hflip, vflip):
-            proc = process_images(p)
-            images_list = proc.images
-            for i in images_list:
-                proces_img = preprocess(i, do_remove_background, foreground_ratio)
-                generate(proces_img, mc_resolution)
+        proc = process_images(p)
+        images_list = proc.images
+        for i in images_list:
+            proces_img = preprocess(i, do_remove_background, foreground_ratio)
+            generate(proces_img, mc_resolution)
 
-            # TODO: add image edit process via Processed object proc
-            return proc
+        # TODO: add image edit process via Processed object proc
+        return proc
+            
