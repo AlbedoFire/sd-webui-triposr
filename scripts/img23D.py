@@ -1,3 +1,6 @@
+import datetime
+import sys
+
 import modules.scripts as scripts
 import gradio as gr
 import os
@@ -19,10 +22,17 @@ import torch
 from PIL import Image
 from functools import partial
 
-from TripoSR.tsr.system import TSR
-from TripoSR.utils import remove_background, resize_foreground, to_gradio_3d_orientation
+# 获取当前文件的路径
+current_path = os.path.dirname(os.path.dirname(__file__))
+print('Current path: {}'.format(current_path))
+sys.path.append(current_path)
+
+from tsr.system import TSR
+from tsr.utils import remove_background, resize_foreground, to_gradio_3d_orientation
 
 import argparse
+
+
 
 if torch.cuda.is_available():
     device = "cuda:0"
@@ -41,7 +51,7 @@ model.to(device)
 
 rembg_session = rembg.new_session()
 
-
+save_path = 'outputs/triposr'
 def check_input_image(input_image):
     if input_image is None:
         raise gr.Error("No image uploaded!")
@@ -78,20 +88,15 @@ def generate(image, mc_resolution, formats=["obj", "glb"]):
         filename = f"file_{timestamp}.txt"
         mesh_path = os.path.join(save_path,filename)
         mesh.export(mesh_path)
+        print('model export in {}'.format(mesh_path))
 
 
 
 
-def run_example(image_pil):
-    preprocessed = preprocess(image_pil, False, 0.9)
-    mesh_name_obj, mesh_name_glb = generate(preprocessed, 256, ["obj", "glb"])
-    return preprocessed, mesh_name_obj, mesh_name_glb
 
 
-save_path = 'outputs/triposr'
 
-
-class Script(scripts.Script):
+class TripoSR(scripts.Script):
 
     def title(self):
         return "图片转化为3D模型"
@@ -102,7 +107,7 @@ class Script(scripts.Script):
     # Thus, return is_img2img to only show the script on the img2img tab.
 
     def show(self, is_img2img):
-        return True
+        return scripts.AlwaysVisible
 
     # How the script's is displayed in the UI. See https://gradio.app/docs/#components
     # for the different UI components you can use and how to create them.
