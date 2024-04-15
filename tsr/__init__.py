@@ -1,26 +1,31 @@
 import os
 import datetime
 import torch
-from modules import shared, util
+from modules import shared, util, devices
 from modules.paths_internal import default_output_dir
 from .system import TSR
 from .utils import to_gradio_3d_orientation
 
+device = devices.get_optimal_device_name()  # not sure if this works with other than CUDA or CPU
+model = None
 
-device = shared.cmd_opts.device_id if torch.cuda.is_available() else "cpu"
 
-model = TSR.from_pretrained(
-    "stabilityai/TripoSR",
-    config_name="config.yaml",
-    weight_name="model.ckpt",
-)
-
-# adjust the chunk size to balance between speed and memory usage
-model.renderer.set_chunk_size(8192)
-model.to(device)
+def load_model():
+    global model
+    if model is not None:
+        return
+    model = TSR.from_pretrained(
+        "stabilityai/TripoSR",
+        config_name="config.yaml",
+        weight_name="model.ckpt",
+    )
+    # adjust the chunk size to balance between speed and memory usage
+    model.renderer.set_chunk_size(8192)
+    model.to(device)
 
 
 def generate(image, mc_resolution, formats=["obj", "glb"]):
+    load_model()
     scene_codes = model(image, device=device)
     mesh = model.extract_mesh(scene_codes, resolution=mc_resolution)[0]
     mesh = to_gradio_3d_orientation(mesh)
