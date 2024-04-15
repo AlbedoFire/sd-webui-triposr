@@ -51,7 +51,7 @@ class BaseModule(nn.Module):
     cfg: Config  # add this to every subclass of BaseModule to enable static type checking
 
     def __init__(
-        self, cfg: Optional[Union[dict, DictConfig]] = None, *args, **kwargs
+            self, cfg: Optional[Union[dict, DictConfig]] = None, *args, **kwargs
     ) -> None:
         super().__init__()
         self.cfg = parse_structured(self.Config, cfg)
@@ -63,9 +63,9 @@ class BaseModule(nn.Module):
 
 class ImagePreprocessor:
     def convert_and_resize(
-        self,
-        image: Union[PIL.Image.Image, np.ndarray, torch.Tensor],
-        size: int,
+            self,
+            image: Union[PIL.Image.Image, np.ndarray, torch.Tensor],
+            size: int,
     ):
         if isinstance(image, PIL.Image.Image):
             image = torch.from_numpy(np.array(image).astype(np.float32) / 255.0)
@@ -93,16 +93,16 @@ class ImagePreprocessor:
         return image
 
     def __call__(
-        self,
-        image: Union[
-            PIL.Image.Image,
-            np.ndarray,
-            torch.FloatTensor,
-            List[PIL.Image.Image],
-            List[np.ndarray],
-            List[torch.FloatTensor],
-        ],
-        size: int,
+            self,
+            image: Union[
+                PIL.Image.Image,
+                np.ndarray,
+                torch.FloatTensor,
+                List[PIL.Image.Image],
+                List[np.ndarray],
+                List[torch.FloatTensor],
+            ],
+            size: int,
     ) -> Any:
         if isinstance(image, (np.ndarray, torch.FloatTensor)) and image.ndim == 4:
             image = self.convert_and_resize(image, size)
@@ -115,11 +115,11 @@ class ImagePreprocessor:
 
 
 def rays_intersect_bbox(
-    rays_o: torch.Tensor,
-    rays_d: torch.Tensor,
-    radius: float,
-    near: float = 0.0,
-    valid_thresh: float = 0.01,
+        rays_o: torch.Tensor,
+        rays_d: torch.Tensor,
+        radius: float,
+        near: float = 0.0,
+        valid_thresh: float = 0.01,
 ):
     input_shape = rays_o.shape[:-1]
     rays_o, rays_d = rays_o.view(-1, 3), rays_d.view(-1, 3)
@@ -131,8 +131,8 @@ def rays_intersect_bbox(
             [[-radius, radius], [-radius, radius], [-radius, radius]]
         ).to(rays_o.device)
     radius = (
-        1.0 - 1.0e-3
-    ) * radius  # tighten the radius to make sure the intersection point lies in the bounding box
+                     1.0 - 1.0e-3
+             ) * radius  # tighten the radius to make sure the intersection point lies in the bounding box
     interx0 = (radius[..., 1] - rays_o) / rays_d_valid
     interx1 = (radius[..., 0] - rays_o) / rays_d_valid
     t_near = torch.minimum(interx0, interx1).amax(dim=-1).clamp_min(near)
@@ -160,7 +160,7 @@ def chunk_batch(func: Callable, chunk_size: int, *args, **kwargs) -> Any:
             B = arg.shape[0]
             break
     assert (
-        B is not None
+            B is not None
     ), "No tensor found in args or kwargs, cannot determine batch size."
     out = defaultdict(list)
     out_type = None
@@ -168,11 +168,11 @@ def chunk_batch(func: Callable, chunk_size: int, *args, **kwargs) -> Any:
     for i in range(0, max(1, B), chunk_size):
         out_chunk = func(
             *[
-                arg[i : i + chunk_size] if isinstance(arg, torch.Tensor) else arg
+                arg[i: i + chunk_size] if isinstance(arg, torch.Tensor) else arg
                 for arg in args
             ],
             **{
-                k: arg[i : i + chunk_size] if isinstance(arg, torch.Tensor) else arg
+                k: arg[i: i + chunk_size] if isinstance(arg, torch.Tensor) else arg
                 for k, arg in kwargs.items()
             },
         )
@@ -255,12 +255,12 @@ def get_activation(name) -> Callable:
 
 
 def get_ray_directions(
-    H: int,
-    W: int,
-    focal: Union[float, Tuple[float, float]],
-    principal: Optional[Tuple[float, float]] = None,
-    use_pixel_centers: bool = True,
-    normalize: bool = True,
+        H: int,
+        W: int,
+        focal: Union[float, Tuple[float, float]],
+        principal: Optional[Tuple[float, float]] = None,
+        use_pixel_centers: bool = True,
+        normalize: bool = True,
 ) -> torch.FloatTensor:
     """
     Get ray directions for all pixels in camera coordinate.
@@ -297,10 +297,10 @@ def get_ray_directions(
 
 
 def get_rays(
-    directions,
-    c2w,
-    keepdim=False,
-    normalize=False,
+        directions,
+        c2w,
+        keepdim=False,
+        normalize=False,
 ) -> Tuple[torch.FloatTensor, torch.FloatTensor]:
     # Rotate ray directions from camera coordinate to the world coordinate
     assert directions.shape[-1] == 3
@@ -339,12 +339,12 @@ def get_rays(
 
 
 def get_spherical_cameras(
-    n_views: int,
-    elevation_deg: float,
-    camera_distance: float,
-    fovy_deg: float,
-    height: int,
-    width: int,
+        n_views: int,
+        elevation_deg: float,
+        camera_distance: float,
+        fovy_deg: float,
+        height: int,
+        width: int,
 ):
     azimuth_deg = torch.linspace(0, 360.0, n_views + 1)[:n_views]
     elevation_deg = torch.full_like(azimuth_deg, elevation_deg)
@@ -391,7 +391,7 @@ def get_spherical_cameras(
     )
     directions = directions_unit_focal[None, :, :, :].repeat(n_views, 1, 1, 1)
     directions[:, :, :, :2] = (
-        directions[:, :, :, :2] / focal_length[:, None, None, None]
+            directions[:, :, :, :2] / focal_length[:, None, None, None]
     )
     # must use normalize=True to normalize directions here
     rays_o, rays_d = get_rays(directions, c2w, keepdim=True, normalize=True)
@@ -400,10 +400,10 @@ def get_spherical_cameras(
 
 
 def remove_background(
-    image: PIL.Image.Image,
-    rembg_session: Any = None,
-    force: bool = False,
-    **rembg_kwargs,
+        image: PIL.Image.Image,
+        rembg_session: Any = None,
+        force: bool = False,
+        **rembg_kwargs,
 ) -> PIL.Image.Image:
     do_remove = True
     if image.mode == "RGBA" and image.getextrema()[3][0] < 255:
@@ -415,8 +415,8 @@ def remove_background(
 
 
 def resize_foreground(
-    image: PIL.Image.Image,
-    ratio: float,
+        image: PIL.Image.Image,
+        ratio: float,
 ) -> PIL.Image.Image:
     image = np.array(image)
     assert image.shape[-1] == 4
@@ -456,9 +456,9 @@ def resize_foreground(
 
 
 def save_video(
-    frames: List[PIL.Image.Image],
-    output_path: str,
-    fps: int = 30,
+        frames: List[PIL.Image.Image],
+        output_path: str,
+        fps: int = 30,
 ):
     # use imageio to save video
     frames = [np.array(frame) for frame in frames]
@@ -469,6 +469,6 @@ def save_video(
 
 
 def to_gradio_3d_orientation(mesh):
-    mesh.apply_transform(trimesh.transformations.rotation_matrix(-np.pi/2, [1, 0, 0]))
-    mesh.apply_transform(trimesh.transformations.rotation_matrix(np.pi/2, [0, 1, 0]))
+    mesh.apply_transform(trimesh.transformations.rotation_matrix(-np.pi / 2, [1, 0, 0]))
+    mesh.apply_transform(trimesh.transformations.rotation_matrix(np.pi / 2, [0, 1, 0]))
     return mesh
