@@ -14,14 +14,21 @@ def load_model():
     global model
     if model is not None:
         return
-    model = TSR.from_pretrained(
-        "stabilityai/TripoSR",
-        config_name="config.yaml",
-        weight_name="model.ckpt",
-    )
-    # adjust the chunk size to balance between speed and memory usage
-    model.renderer.set_chunk_size(8192)
-    model.to(device)
+    # --disable-safe-unpickle when loading tsr model
+    disable_safe_unpickle = shared.cmd_opts.disable_safe_unpickle
+    shared.cmd_opts.disable_safe_unpickle = True
+    try:
+        model = TSR.from_pretrained(
+            "stabilityai/TripoSR",
+            config_name="config.yaml",
+            weight_name="model.ckpt",
+        )
+        # adjust the chunk size to balance between speed and memory usage
+        model.renderer.set_chunk_size(8192)
+        model.to(device)
+    finally:
+        # restore disable_safe_unpickle to original value
+        shared.cmd_opts.disable_safe_unpickle = disable_safe_unpickle
 
 
 def generate(image, mc_resolution, formats=["obj", "glb"]):
