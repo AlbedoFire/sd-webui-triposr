@@ -13,7 +13,7 @@ def check_input_image(input_image):
 class TripoSR(scripts.Script):
 
     def title(self):
-        return "图片转化为3D模型"
+        return "TripoSR image to 3D"
 
     # Determines when the script should be shown in the dropdown menu via the
     # returned value. As an example:
@@ -31,10 +31,10 @@ class TripoSR(scripts.Script):
     def ui(self, is_img2img):
         with gr.Group():
             do_remove_background = gr.Checkbox(
-                label="去除背景", value=True
+                label="Remove Background", value=True
             )
             foreground_ratio = gr.Slider(
-                label="去除背景的程度",
+                label="Foreground Ratio",
                 minimum=0.5,
                 maximum=1.0,
                 value=0.85,
