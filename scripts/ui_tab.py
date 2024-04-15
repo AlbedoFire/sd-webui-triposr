@@ -1,7 +1,7 @@
 import gradio as gr
 from modules import script_callbacks
 from tsr.utils import preprocess
-from tsr import generate
+from tsr import generate, on_ui_settings
 
 
 def check_input_image(input_image):
@@ -66,7 +66,7 @@ def on_ui_tabs():
                         label="Output Model (GLB Format)",
                         interactive=False,
                     )
-                    gr.Markdown("Note: The model shown here has a darker appearance. Download to get correct results.")
+                    gr.Markdown("Note: The obj model shown here has a darker appearance. Download to get correct results.")
         submit.click(fn=check_input_image, inputs=[input_image]).success(
             fn=preprocess,
             inputs=[input_image, do_remove_background, foreground_ratio],
@@ -80,3 +80,4 @@ def on_ui_tabs():
 
 
 script_callbacks.on_ui_tabs(on_ui_tabs)
+script_callbacks.on_ui_settings(on_ui_settings)

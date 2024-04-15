@@ -1,12 +1,11 @@
 import os
 import datetime
 import torch
-from modules import shared
+from modules import shared, util
+from modules.paths_internal import default_output_dir
 from .system import TSR
 from .utils import to_gradio_3d_orientation
 
-
-save_path = 'outputs/triposr'  # todo: need change
 
 device = shared.cmd_opts.device_id if torch.cuda.is_available() else "cpu"
 
@@ -31,8 +30,20 @@ def generate(image, mc_resolution, formats=["obj", "glb"]):
 
         # 生成文件名
         filename = f"file_{timestamp}.{format}"
-        mesh_path = os.path.join(save_path, filename)
+        mesh_path = os.path.join(shared.opts.tsr_output_dir, filename)
+        os.makedirs(shared.opts.tsr_output_dir, exist_ok=True)
         mesh.export(mesh_path)
         rv.append(mesh_path)
         print(f'model export in {mesh_path}')
     return rv
+
+
+def on_ui_settings():
+    shared.opts.add_option(
+        'tsr_output_dir',
+        shared.OptionInfo(
+            util.truncate_path(os.path.join(default_output_dir, 'triposr')),
+            'Directory for TSR output models',
+            section=('tsr', 'TSR'),
+        )
+    )
