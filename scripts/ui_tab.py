@@ -1,5 +1,4 @@
 import datetime
-import sys
 
 import modules.scripts as scripts
 import gradio as gr
@@ -22,7 +21,6 @@ from functools import partial
 # 获取当前文件的路径
 current_path = os.path.dirname(os.path.dirname(__file__))
 print('Current path: {}'.format(current_path))
-sys.path.append(current_path)
 
 from tsr.system import TSR
 from tsr.utils import remove_background, resize_foreground, to_gradio_3d_orientation
