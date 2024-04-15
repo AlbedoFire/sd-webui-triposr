@@ -2,15 +2,11 @@ import datetime
 import os
 
 import gradio as gr
-import numpy as np
-import rembg
 import torch
-from PIL import Image
-
 from modules import script_callbacks
 
 from tsr.system import TSR
-from tsr.utils import remove_background, resize_foreground, to_gradio_3d_orientation
+from tsr.utils import to_gradio_3d_orientation, preprocess
 
 save_path = 'outputs/triposr'
 if torch.cuda.is_available():
@@ -28,31 +24,10 @@ model = TSR.from_pretrained(
 model.renderer.set_chunk_size(8192)
 model.to(device)
 
-rembg_session = rembg.new_session()
-
 
 def check_input_image(input_image):
     if input_image is None:
         raise gr.Error("No image uploaded!")
-
-
-def preprocess(input_image, do_remove_background, foreground_ratio):
-    def fill_background(image):
-        image = np.array(image).astype(np.float32) / 255.0
-        image = image[:, :, :3] * image[:, :, 3:4] + (1 - image[:, :, 3:4]) * 0.5
-        image = Image.fromarray((image * 255.0).astype(np.uint8))
-        return image
-
-    if do_remove_background:
-        image = input_image.convert("RGB")
-        image = remove_background(image, rembg_session)
-        image = resize_foreground(image, foreground_ratio)
-        image = fill_background(image)
-    else:
-        image = input_image
-        if image.mode == "RGBA":
-            image = fill_background(image)
-    return image
 
 
 def generate(image, mc_resolution, formats=["obj", "glb"]):

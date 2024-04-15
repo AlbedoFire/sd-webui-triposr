@@ -472,3 +472,25 @@ def to_gradio_3d_orientation(mesh):
     mesh.apply_transform(trimesh.transformations.rotation_matrix(-np.pi / 2, [1, 0, 0]))
     mesh.apply_transform(trimesh.transformations.rotation_matrix(np.pi / 2, [0, 1, 0]))
     return mesh
+
+
+def preprocess(input_image, do_remove_background, foreground_ratio):
+    def fill_background(image):
+        image = np.array(image).astype(np.float32) / 255.0
+        image = image[:, :, :3] * image[:, :, 3:4] + (1 - image[:, :, 3:4]) * 0.5
+        image = Image.fromarray((image * 255.0).astype(np.uint8))
+        return image
+
+    if do_remove_background:
+        image = input_image.convert("RGB")
+        image = remove_background(image, rembg_session)
+        image = resize_foreground(image, foreground_ratio)
+        image = fill_background(image)
+    else:
+        image = input_image
+        if image.mode == "RGBA":
+            image = fill_background(image)
+    return image
+
+
+rembg_session = rembg.new_session()
