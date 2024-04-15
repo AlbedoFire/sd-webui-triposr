@@ -10,10 +10,6 @@ from PIL import Image
 import modules.scripts as scripts
 from modules.processing import process_images
 
-# 获取当前文件的路径
-current_path = os.path.dirname(os.path.dirname(__file__))
-print('Current path: {}'.format(current_path))
-
 from tsr.system import TSR
 from tsr.utils import remove_background, resize_foreground, to_gradio_3d_orientation
 
@@ -35,6 +31,8 @@ model.to(device)
 rembg_session = rembg.new_session()
 
 save_path = 'outputs/triposr'
+
+
 def check_input_image(input_image):
     if input_image is None:
         raise gr.Error("No image uploaded!")
@@ -69,14 +67,9 @@ def generate(image, mc_resolution, formats=["obj", "glb"]):
 
         # 生成文件名
         filename = f"file_{timestamp}.{format}"
-        mesh_path = os.path.join(save_path,filename)
+        mesh_path = os.path.join(save_path, filename)
         mesh.export(mesh_path)
         print(f'model export in {mesh_path}')
-
-
-
-
-
 
 
 class TripoSR(scripts.Script):
@@ -138,7 +131,3 @@ class TripoSR(scripts.Script):
 
         # TODO: add image edit process via Processed object proc
         return proc
-
-
-
-

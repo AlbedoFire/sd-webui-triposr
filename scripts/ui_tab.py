@@ -9,10 +9,6 @@ from PIL import Image
 
 from modules import script_callbacks
 
-# 获取当前文件的路径
-current_path = os.path.dirname(os.path.dirname(__file__))
-print('Current path: {}'.format(current_path))
-
 from tsr.system import TSR
 from tsr.utils import remove_background, resize_foreground, to_gradio_3d_orientation
 
@@ -69,15 +65,11 @@ def generate(image, mc_resolution, formats=["obj", "glb"]):
 
         # 生成文件名
         filename = f"file_{timestamp}.{format}"
-        mesh_path = os.path.join(save_path,filename)
+        mesh_path = os.path.join(save_path, filename)
         mesh.export(mesh_path)
         rv.append(mesh_path)
         print(f'model export in {mesh_path}')
     return rv
-
-
-
-
 
 
 def on_ui_tabs():
@@ -148,5 +140,6 @@ def on_ui_tabs():
             outputs=[output_model_obj, output_model_glb],
         )
         return [(interface, "Extension TripoSR", "extension_TripoSR")]
+
 
 script_callbacks.on_ui_tabs(on_ui_tabs)
