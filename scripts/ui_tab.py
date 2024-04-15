@@ -1,50 +1,12 @@
-import datetime
-import os
-
 import gradio as gr
-import torch
 from modules import script_callbacks
-
-from tsr.system import TSR
-from tsr.utils import to_gradio_3d_orientation, preprocess
-
-save_path = 'outputs/triposr'
-if torch.cuda.is_available():
-    device = "cuda:0"
-else:
-    device = "cpu"
-
-model = TSR.from_pretrained(
-    "stabilityai/TripoSR",
-    config_name="config.yaml",
-    weight_name="model.ckpt",
-)
-
-# adjust the chunk size to balance between speed and memory usage
-model.renderer.set_chunk_size(8192)
-model.to(device)
+from tsr.utils import preprocess
+from tsr import generate
 
 
 def check_input_image(input_image):
     if input_image is None:
         raise gr.Error("No image uploaded!")
-
-
-def generate(image, mc_resolution, formats=["obj", "glb"]):
-    scene_codes = model(image, device=device)
-    mesh = model.extract_mesh(scene_codes, resolution=mc_resolution)[0]
-    mesh = to_gradio_3d_orientation(mesh)
-    rv = []
-    for format in formats:
-        timestamp = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
-
-        # 生成文件名
-        filename = f"file_{timestamp}.{format}"
-        mesh_path = os.path.join(save_path, filename)
-        mesh.export(mesh_path)
-        rv.append(mesh_path)
-        print(f'model export in {mesh_path}')
-    return rv
 
 
 def on_ui_tabs():
