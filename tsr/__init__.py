@@ -25,9 +25,8 @@ def generate(image, mc_resolution, formats=["obj", "glb"]):
     mesh = model.extract_mesh(scene_codes, resolution=mc_resolution)[0]
     mesh = to_gradio_3d_orientation(mesh)
     rv = []
+    timestamp = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
     for format in formats:
-        timestamp = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
-
         # 生成文件名
         filename = f"file_{timestamp}.{format}"
         mesh_path = os.path.join(shared.opts.tsr_output_dir, filename)
