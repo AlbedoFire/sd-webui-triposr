@@ -1,22 +1,13 @@
 import datetime
-
-import modules.scripts as scripts
-import gradio as gr
 import os
-
-from modules import script_callbacks
-
-import logging
-import os
-import tempfile
-import time
 
 import gradio as gr
 import numpy as np
 import rembg
 import torch
 from PIL import Image
-from functools import partial
+
+from modules import script_callbacks
 
 # 获取当前文件的路径
 current_path = os.path.dirname(os.path.dirname(__file__))
@@ -24,8 +15,6 @@ print('Current path: {}'.format(current_path))
 
 from tsr.system import TSR
 from tsr.utils import remove_background, resize_foreground, to_gradio_3d_orientation
-
-import argparse
 
 save_path = 'outputs/triposr'
 if torch.cuda.is_available():
