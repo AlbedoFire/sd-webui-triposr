@@ -55,6 +55,6 @@ def on_ui_settings():
         shared.OptionInfo(
             util.truncate_path(os.path.join(default_output_dir, 'triposr')),
             'Directory for TSR output models',
-            section=('tsr', 'TSR'),
+            section=('tsr', 'TripoSR'),
         )
     )
