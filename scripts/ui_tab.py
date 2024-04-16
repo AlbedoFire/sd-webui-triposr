@@ -76,7 +76,7 @@ def on_ui_tabs():
             inputs=[processed_image, mc_resolution],
             outputs=[output_model_obj, output_model_glb],
         )
-        return [(interface, "Extension TripoSR", "extension_TripoSR")]
+        return [(interface, "TripoSR", "extension_TripoSR")]
 
 
 script_callbacks.on_ui_tabs(on_ui_tabs)
