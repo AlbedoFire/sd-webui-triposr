@@ -2,6 +2,7 @@ import gradio as gr
 from modules import script_callbacks
 from tsr.utils import preprocess
 from tsr import generate, on_ui_settings
+from modules import shared
 
 
 def check_input_image(input_image):
@@ -11,17 +12,6 @@ def check_input_image(input_image):
 
 def on_ui_tabs():
     with gr.Blocks(title="TripoSR") as interface:
-        gr.Markdown(
-            """
-        # TripoSR Demo
-        [TripoSR](https://github.com/VAST-AI-Research/TripoSR) is a state-of-the-art open-source model for **fast** feedforward 3D reconstruction from a single image, collaboratively developed by [Tripo AI](https://www.tripo3d.ai/) and [Stability AI](https://stability.ai/).
-
-        **Tips:**
-        1. If you find the result is unsatisfied, please try to change the foreground ratio. It might improve the results.
-        2. It's better to disable "Remove Background" for the provided examples (except fot the last one) since they have been already preprocessed.
-        3. Otherwise, please disable "Remove Background" option only if your input image is RGBA with transparent background, image contents are centered and occupy more than 70% of image width or height.
-        """
-        )
         with gr.Row(variant="panel"):
             with gr.Column():
                 with gr.Row():
@@ -76,6 +66,15 @@ def on_ui_tabs():
             inputs=[processed_image, mc_resolution],
             outputs=[output_model_obj, output_model_glb],
         )
+        if shared.opts.tsr_show_tips:
+            gr.Markdown("""# TripoSR Demo
+[TripoSR](https://github.com/VAST-AI-Research/TripoSR) is a state-of-the-art open-source model for **fast** feedforward 3D reconstruction from a single image, collaboratively developed by [Tripo AI](https://www.tripo3d.ai/) and [Stability AI](https://stability.ai/).
+
+**Tips:**
+1. If you find the result is unsatisfied, please try to change the foreground ratio. It might improve the results.
+2. It's better to disable "Remove Background" for the provided examples (except fot the last one) since they have been already preprocessed.
+3. Otherwise, please disable "Remove Background" option only if your input image is RGBA with transparent background, image contents are centered and occupy more than 70% of image width or height.
+""")
         return [(interface, "TripoSR", "extension_TripoSR")]
 
 

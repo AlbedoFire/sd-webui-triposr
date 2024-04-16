@@ -50,11 +50,21 @@ def generate(image, mc_resolution, formats=["obj", "glb"]):
 
 
 def on_ui_settings():
+    section = ('tsr', 'TripoSR')
     shared.opts.add_option(
         'tsr_output_dir',
         shared.OptionInfo(
             util.truncate_path(os.path.join(default_output_dir, 'triposr')),
             'Directory for TSR output models',
-            section=('tsr', 'TripoSR'),
+            section=section,
         )
     )
+    shared.opts.add_option(
+        'tsr_show_tips',
+        shared.OptionInfo(
+            True,
+            'Show tips for TripoSR',
+            section=section,
+        ).needs_reload_ui()
+    )
+
