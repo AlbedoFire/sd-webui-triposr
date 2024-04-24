@@ -1,12 +1,10 @@
-import math
 import os
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from typing import List, Union
 
 import numpy as np
 import PIL.Image
 import torch
-import torch.nn.functional as F
 import trimesh
 from einops import rearrange
 from huggingface_hub import hf_hub_download
