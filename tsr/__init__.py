@@ -1,9 +1,11 @@
 import os
 import datetime
-from modules import shared, util
+from modules import shared, util,devices
 from modules.paths_internal import default_output_dir
 from .system import TSR
 from .utils import to_gradio_3d_orientation
+import torch
+
 
 model = None
 
@@ -29,7 +31,9 @@ def load_model():
         shared.cmd_opts.disable_safe_unpickle = disable_safe_unpickle
 
 
+
 def generate(image, mc_resolution, formats=["obj", "glb"]):
+    global model
     load_model()
     scene_codes = model(image, device=shared.device)
     mesh = model.extract_mesh(scene_codes, resolution=mc_resolution)[0]
@@ -44,6 +48,7 @@ def generate(image, mc_resolution, formats=["obj", "glb"]):
         mesh.export(mesh_path)
         rv.append(mesh_path)
         print(f'model export in {mesh_path}')
+    reset_and_gc()
     return rv
 
 
@@ -66,3 +71,19 @@ def on_ui_settings():
         ).needs_reload_ui()
     )
 
+def reset_and_gc():
+    import gc;gc.collect()
+    devices.torch_gc()
+
+    try:
+        import os
+        import psutil
+        mem = psutil.Process(os.getpid()).memory_info()
+        print(f'[Mem] rss: {mem.rss / 2 ** 30:.3f} GB, vms: {mem.vms / 2 ** 30:.3f} GB')
+        from modules.shared import mem_mon as vram_mon
+        from modules.memmon import MemUsageMonitor
+        vram_mon: MemUsageMonitor
+        free, total = vram_mon.cuda_mem_get_info()
+        print(f'[VRAM] free: {free / 2 ** 30:.3f} GB, total: {total / 2 ** 30:.3f} GB')
+    except:
+        pass

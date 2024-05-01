@@ -3,6 +3,8 @@ import modules.scripts as scripts
 from modules.processing import process_images
 from tsr.utils import preprocess
 from tsr import generate
+from tsr import reset_and_gc
+
 
 
 def check_input_image(input_image):
@@ -30,9 +32,12 @@ class TripoSR(scripts.Script):
 
     def ui(self, is_img2img):
         with gr.Group():
-            do_remove_background = gr.Checkbox(
-                label="Remove Background", value=True
-            )
+            with gr.Row():
+                do_remove_background = gr.Checkbox(
+                    label="Remove Background", value=True
+                )
+                reset_status = gr.Button(value='Free GPU', variant='tool')
+                reset_status.click(fn=reset_and_gc, show_progress=False)
             foreground_ratio = gr.Slider(
                 label="Foreground Ratio",
                 minimum=0.5,

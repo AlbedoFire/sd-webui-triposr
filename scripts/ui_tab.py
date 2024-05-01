@@ -1,8 +1,9 @@
 import gradio as gr
 from modules import script_callbacks
 from tsr.utils import preprocess
-from tsr import generate, on_ui_settings
+from tsr import generate, on_ui_settings,reset_and_gc
 from modules import shared
+
 
 
 def check_input_image(input_image):
@@ -44,6 +45,8 @@ def on_ui_tabs():
                         )
                 with gr.Row():
                     submit = gr.Button("Generate", elem_id="generate", variant="primary")
+                reset_status = gr.Button(value='Free GPU', variant='tool')
+                reset_status.click(fn=reset_and_gc, show_progress=False)
             with gr.Column():
                 with gr.Tab("OBJ"):
                     output_model_obj = gr.Model3D(
